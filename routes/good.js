@@ -21,7 +21,29 @@ mongoose.connection.on('disconnected', function () {
 });
 
 router.get('/', function (req, res, next) {
-  Good.find({}, function (err, doc) {
+  let page = parseInt(req.param('page'))
+  let pageSize = parseInt(req.param('pageSize'))
+  let sort = req.param('sort')
+  let type = parseInt(req.param('type'))
+  let skip = (page - 1) * pageSize
+  let params = {}
+  if (type && type < 3) {
+    params.type = type
+  }
+  let totalCount = 0
+  Good.count(params, (err, count) => {
+    if (err) {
+      console.log(err)
+    } else {
+      totalCount = count
+    }
+  })
+  let goodModel = Good.find(params).skip(skip).limit(pageSize)
+
+  if (sort === -1 || sort === 1) {
+    goodModel.sort({'pPrice': sort})
+  }
+  goodModel.exec((err, doc) => {
     if (err) {
       res.json({
         status: 1,
@@ -32,6 +54,7 @@ router.get('/', function (req, res, next) {
         status: 0,
         msg: '',
         result: {
+          totalCount: totalCount,
           count: doc.length,
           list: doc
         }

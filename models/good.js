@@ -13,4 +13,4 @@ var GoodSchema = new Schema({
   'seller': String
 })
 
-module.exports = mongoose.model('goods', GoodSchema)
+module.exports = mongoose.model('Good', GoodSchema, 'goods')
