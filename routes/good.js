@@ -63,4 +63,27 @@ router.get('/', function (req, res, next) {
   })
 })
 
+router.get('/detail', function (req, res, next) {
+  let params = {
+    pid: parseInt(req.param('productId'))
+  }
+
+  Good.find(params, (err, doc) => {
+    if (err) {
+      res.json({
+        status: 1,
+        msg: err.msg
+      })
+    } else {
+      res.json({
+        status: 0,
+        msg: '',
+        result: {
+          list: doc
+        }
+      })
+    }
+  })
+})
+
 module.exports = router
