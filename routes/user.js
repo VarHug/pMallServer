@@ -202,6 +202,64 @@ router.get('/removeCartList', function (req, res, next) {
   })
 })
 
+router.get('/updateConsignee', function (req, res, next) {
+  // 获取参数
+  let params = req.query
+  let uid = params.uid
+  let consignee = JSON.parse(params.consigneeList)
+  let whereStr = {
+    uid
+  }
+  let updateStr = {
+    consignee
+  }
+  User.updateOne(whereStr, updateStr, (err, doc) => {
+    if (err) {
+      res.json({
+        status: 1,
+        msg: err.msg
+      })
+    } else {
+      res.json({
+        status: 0,
+        msg: 'update success'
+      })
+    }
+  })
+})
+
+router.get('/getConsignee', function (req, res, next) {
+  let params = req.query
+  let uid = params.uid
+  let whereStr = {
+    uid
+  }
+  User.findOne(whereStr, (err, doc) => {
+    if (err) {
+      res.json({
+        status: 1,
+        msg: err.msg
+      })
+    } else {
+      if (doc) {
+        res.json({
+          status: 0,
+          msg: '',
+          result: {
+            consignee: doc.consignee || []
+          }
+        })
+      } else {
+        res.json({
+          status: 1,
+          msg: 'not find',
+          result: {}
+        })
+      }
+    }
+  })
+})
+
 function getCartList(whereStr, res) {
   User.findOne(whereStr, (err, doc) => {
     if (err) {

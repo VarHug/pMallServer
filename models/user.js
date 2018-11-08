@@ -6,7 +6,8 @@ var UserSchema = new Schema({
   'pwd': String,
   'name': String,
   'avatar': String,
-  'cartList': Array
+  'cartList': Array,
+  'consignee': Array
 })
 
 module.exports = mongoose.model('User', UserSchema, 'users')
