@@ -21,28 +21,39 @@ mongoose.connection.on('disconnected', function () {
 });
 
 router.get('/', function (req, res, next) {
-  let page = parseInt(req.param('page'))
-  let pageSize = parseInt(req.param('pageSize'))
-  let sort = req.param('sort')
-  let type = parseInt(req.param('type'))
+  let params = req.query
+  let page = parseInt(params.page)
+  let pageSize = parseInt(params.pageSize)
   let skip = (page - 1) * pageSize
-  let params = {}
+  let whereStr = {}
+  // 查询种类设置（手机产品、周边产品）
+  let type = parseInt(params.type)
   if (type && type < 3) {
-    params.type = type
+    whereStr.type = type
   }
+
+  // 模糊查询queryString
+  let queryString = params.queryString
+  if (queryString) {
+    whereStr.pName = new RegExp(queryString)
+  }
+
   let totalCount = 0
-  Good.count(params, (err, count) => {
+  Good.count(whereStr, (err, count) => {
     if (err) {
       console.log(err)
     } else {
       totalCount = count
     }
   })
-  let goodModel = Good.find(params).skip(skip).limit(pageSize)
+  let goodModel = Good.find(whereStr).skip(skip).limit(pageSize)
 
+  // 排序相关
+  let sort = params.sort
   if (sort === -1 || sort === 1) {
     goodModel.sort({'pPrice': sort})
   }
+
   goodModel.exec((err, doc) => {
     if (err) {
       res.json({
