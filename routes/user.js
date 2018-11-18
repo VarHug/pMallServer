@@ -111,6 +111,49 @@ router.get('/setCartList', function (req, res, next) {
   })
 })
 
+router.get('/setCheckedState', function (req, res, next) {
+  // 获取参数
+  let params = req.query
+  let uid = params.uid
+  let states = JSON.parse(params.states)
+  // 获取购物车
+  let whereStr = {
+    uid
+  }
+  User.findOne(whereStr, (err, doc) => {
+    if (err) {
+      res.json({
+        status: 1,
+        msg: err.msg
+      })
+    } else {
+      let cartList = doc.cartList || []
+      // 设置购物车
+      states.forEach(state => {
+        for (let i = 0; i < cartList.length; i++) {
+          if (state.pid === cartList[i].pid) {
+            cartList[i].isChecked = state.isChecked
+          }
+        }
+      })
+      let updateStr = {
+        cartList
+      }
+      // 更新购物车
+      User.updateOne(whereStr, updateStr, (err, doc) => {
+        if (err) {
+          res.json({
+            status: 1,
+            msg: err.msg
+          })
+        } else {
+          getCartList(whereStr, res)
+        }
+      })
+    }
+  })
+})
+
 router.get('/concatCartList', function (req, res, next) {
   // 获取参数
   let params = req.query
@@ -184,6 +227,50 @@ router.get('/removeCartList', function (req, res, next) {
       if (index > -1) {
         cartList.splice(index, 1)
       }
+      let updateStr = {
+        cartList
+      }
+      // 更新购物车
+      User.updateOne(whereStr, updateStr, (err, doc) => {
+        if (err) {
+          res.json({
+            status: 1,
+            msg: err.msg
+          })
+        } else {
+          getCartList(whereStr, res)
+        }
+      })
+    }
+  })
+})
+
+// 删除选中的全部商品
+router.get('/deleteCheckedGoods', function (req, res, next) {
+  // 获取参数
+  let params = req.query
+  let uid = params.uid
+  let goodsList = JSON.parse(params.goodsList)
+  // 获取购物车
+  let whereStr = {
+    uid
+  }
+  User.findOne(whereStr, (err, doc) => {
+    if (err) {
+      res.json({
+        status: 1,
+        msg: err.msg
+      })
+    } else {
+      let cartList = doc.cartList || []
+      // 设置购物车
+      goodsList.forEach(pid => {
+        for(let i = 0; i < cartList.length; i++) {
+          if (pid === cartList[i].pid) {
+            cartList.splice(i, 1)
+          }
+        }
+      })
       let updateStr = {
         cartList
       }
