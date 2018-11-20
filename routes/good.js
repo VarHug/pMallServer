@@ -49,7 +49,7 @@ router.get('/', function (req, res, next) {
   let goodModel = Good.find(whereStr).skip(skip).limit(pageSize)
 
   // 排序相关
-  let sort = params.sort
+  let sort = parseInt(params.sort)
   if (sort === -1 || sort === 1) {
     goodModel.sort({'pPrice': sort})
   }
